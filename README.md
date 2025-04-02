@@ -16,7 +16,7 @@
 - **ML**: Cosine similarity on embeddings
 
 ## Getting Started
-git clone git@github.com:sienzzzz/FacialRecognition.git
+git clone repo
 cd FacialRecognition
 
 # Create Virtual Environment
