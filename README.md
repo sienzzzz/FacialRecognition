@@ -16,8 +16,8 @@
 - **ML**: Cosine similarity on embeddings
 
 ## Getting Started
-git clone repo
-cd FacialRecognition
+- git clone repo
+- cd FacialRecognition
 
 # Create Virtual Environment
 python3 -m venv projvenv
