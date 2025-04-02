@@ -1,0 +1,15 @@
+# Ignore virtual environments
+projvenv/
+
+# Ignore Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore temporary image and data files
+*.jpg
+*.jpeg
+*.png
+*.npy
+*.log
+temp.jpg
