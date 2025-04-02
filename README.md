@@ -20,9 +20,9 @@
 - cd FacialRecognition
 
 # Create Virtual Environment
-python3 -m venv projvenv
-source projvenv/bin/activate
-pip install -r requirements.txt
+- python3 -m venv projvenv
+- source projvenv/bin/activate
+- pip install -r requirements.txt
 
 ## Run the app
 python app.py
