@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Our Projects</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a1a2e 0%, #000000 100%);
+            font-family: 'Arial', sans-serif;
+            color: #8878ad;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .stars-container {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(173,216,230,0) 80%);
+            border-radius: 50%;
+            width: 10px;
+            height: 10px;
+            animation: drift linear infinite, fade-in-out ease-in-out infinite;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translateY(-10vh);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(110vh) translateX(var(--drift));
+                opacity: 1;
+            }
+        }
+
+        .content-box {
+            position: relative;
+            z-index: 10;
+            margin: auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 5px solid #8878ad;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            max-width: 800px;
+            text-align: left;
+        }
+
+        h1, h2 {
+            color: #8878ad;
+        }
+
+        ul {
+            text-align: left;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="stars-container">
+        <script>
+            function createStar() {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const startX = Math.random() * window.innerWidth;
+                const size = Math.random() * 11 + 4;
+                const the_duration = Math.random() * 4 + 2;
+                const drift = Math.random() * 60 - 30;
+
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${startX}px`;
+                star.style.animationDuration = `${the_duration}s, ${the_duration * 0.8}s`;
+                star.style.setProperty('--drift', `${drift}px`);
+
+                document.querySelector('.stars-container').appendChild(star);
+
+                setTimeout(() => {
+                    star.remove();
+                }, the_duration * 1000);
+            }
+
+            setInterval(createStar, 100);
+        </script>
+    </div>
+
+    <div class="content-box">
+        <h1>About Our Projects</h1>
+        <p>Hello, I'm Wei Teng, the developer behind Assignment 2 and here's the overview of our group assignments.</p>
+        
+        <h2>Assignment 1 Overview</h2>
+        <ul>
+            <li><strong>Introduction:</strong> Led by Marcus, outlining the project's aims and scope.</li>
+            <li><strong>Methodology:</strong> Russell the developer for assignment 1,  implementing core methodologies.</li>
+            <li><strong>Evaluation, Results, and Conclusion:</strong> Handled by Aryan and Kan Zheng, focusing on data analysis and final insights.</li>
+        </ul>
+
+        <h2>Assignment 2 Overview</h2>
+        <ul>
+            <li><strong>Introduction:</strong> Led by Hua Jun, who introduced the project with clarity and set the stage for our objectives and deliverables.</li>
+            <li><strong>Methodology:</strong> Wei Teng, the developer for assignment 2, crafting the technical aspects and ensuring that our methods were precisely aligned with our goals.</li>
+            <li><strong>Evaluation, Results, and Conclusion:</strong> Conducted by Gong Yuan and Kan Zheng, assessing outcomes and deriving conclusions.</li>
+        </ul>
+    </div>
+</body>
+</html>

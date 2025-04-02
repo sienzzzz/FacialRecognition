@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition System</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a1a2e 0%, #000000 100%);
+            font-family: 'Arial', sans-serif;
+            color: #8878ad;
+            text-align: center;
+            position: relative;
+        }
+
+        .stars-container {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(173,216,230,0) 80%);
+            border-radius: 50%;
+            width: 10px;
+            height: 10px;
+            animation: drift linear infinite, fade-in-out ease-in-out infinite;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translateY(-10vh);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(140vh) translateX(var(--drift));
+                opacity: 1;
+            }
+        }
+
+        @keyframes fade-in-out {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            position: relative;
+            z-index: 10;
+        }
+
+        .content-box {
+            background: rgba(0, 0, 0, 0.6);
+            border: 5px solid #8878ad;
+            padding: 20px;
+            border-radius: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            width: 300px; /* Adjust width as needed */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #8878ad;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 20px;
+            font-weight: bold;
+            color: black;
+            background: #8878ad;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: 0.3s ease;
+            margin: 10px 0; /* Adjust spacing around buttons */
+            width: 100%; /* Full width buttons */
+        }
+
+        button:hover {
+            background: #7324a1;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars-container">
+        <script>
+            function createStar() {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const startX = Math.random() * window.innerWidth;
+                const size = Math.random() * 11 + 4;
+                const the_duration = Math.random() * 4 + 2;
+                const drift = Math.random() * 60 - 30;
+
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${startX}px`;
+                star.style.animationDuration = `${the_duration}s, ${the_duration * 0.8}s`;
+                star.style.setProperty('--drift', `${drift}px`);
+
+                document.querySelector('.stars-container').appendChild(star);
+
+                setTimeout(() => {
+                    star.remove();
+                }, the_duration * 1000);
+            }
+
+            setInterval(createStar, 100);
+        </script>
+    </div>
+    
+    <div class="container">
+        <div class="content-box">
+            <h1>Face Recognition System</h1>
+            <button onclick="location.href='/capturing'">Image Capturing</button>
+            <button onclick="location.href='/detection'">Real-Time Face Detection</button>
+            <button onclick="location.href='/about'">About</button>
+        </div>
+    </div>
+</body>
+</html>

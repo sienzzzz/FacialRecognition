@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Detection and Recognition System</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #000000 100%);
+            color: #8878ad;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            position: relative;
+        }
+
+        .stars-container {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(173,216,230,0) 80%);
+            border-radius: 50%;
+            opacity: 0;
+            animation: fall linear infinite, fade-in-out ease-in-out infinite;
+        }
+
+        @keyframes fall {
+            from {
+                transform: translateY(-10vh) translateX(0);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(110vh) translateX(var(--drift));
+                opacity: 1;
+            }
+        }
+
+        h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .input-container {
+            margin-bottom: 15px;
+        }
+
+        input {
+            padding: 12px;
+            font-size: 20px;
+            border: 2px solid #8878ad;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            color: #8878ad;
+            text-align: center;
+            width: 250px;
+            border-radius: 8px;
+            margin: auto;
+        }
+
+        #videoContainer {
+            position: relative;
+            display: block;
+            max-width: 800px;
+            width: 100%;
+            margin: 20px auto;
+        }
+
+        video {
+            max-width: 100%;
+            height: auto;
+            border: 5px solid #8878ad;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            transform: scaleX(-1); /* Mirror the video feed */
+        }
+
+        #face-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 3px solid #8878ad;
+            width: 300px;
+            height: 400px;
+            border-radius: 50%/55%;
+            pointer-events: none;
+        }
+
+        #floating-instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(136, 120, 173, 0.9);
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            padding: 12px 25px;
+            border-radius: 10px;
+            z-index: 20;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        #reference-instructions {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 15px;
+            color: #ffcc00;
+        }
+
+        button {
+            padding: 15px 25px;
+            font-size: 18px;
+            font-weight: bold;
+            color: black;
+            background: #8878ad;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.3s ease;
+            display: block;
+            width: 250px;
+            margin: 10px auto;
+        }
+
+        button:hover {
+            background: #7324a1;
+            color: white;
+        }
+
+        #finished-text {
+            font-size: 30px;
+            font-weight: bold;
+            display: none;
+            margin-top: 20px;
+            color: #ffcc00;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Stars Background -->
+    <div class="stars-container"></div>
+
+    <h2>Face Detection and Recognition System</h2>
+
+    <div class="input-container">
+        <input type="text" id="name" placeholder="Enter Your Name">
+    </div>
+    
+    <button onclick="startCapture()">Ready to Capture</button>
+
+    <p id="floating-instructions">Look straight ahead</p>
+
+    <div id="videoContainer">
+        <video id="video" autoplay playsinline></video> <!-- Ensure playsinline for mobile browsers -->
+        <div id="face-overlay"></div>
+    </div>
+
+    <p id="reference-instructions"></p>
+
+    <button id="capture-btn" onclick="captureImage()" style="display: none;">Capture</button>
+    <p id="finished-text">Finished Capturing</p>
+
+    <button onclick="window.location.href='/'">Return to Homepage</button>
+
+    <!-- Initialize camaera and displays live video feed -->
+    <script> 
+        const video = document.getElementById('video');
+        navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+            video.srcObject = stream;
+        });
+
+        let captureSteps = [
+            "Look straight", "Look left", "Look right", "Look up", 
+            "Look down", "Smile", "Angry", "Surprised",
+            "Sad", "Stunned", "Last one best one"
+        ];
+        let currentStep = 0;
+
+        function startCapture() {
+            let name = document.getElementById('name').value;
+            if (!name) {
+                alert("Please enter your name.");
+                return;
+            }
+
+            document.getElementById('capture-btn').style.display = 'block';
+            showNextInstruction();
+        }
+
+        function showNextInstruction() {
+            if (currentStep >= captureSteps.length) return;
+
+            let floatingInstructions = document.getElementById('floating-instructions');
+            let referenceInstructions = document.getElementById('reference-instructions');
+
+            floatingInstructions.textContent = captureSteps[currentStep];
+            referenceInstructions.textContent = captureSteps[currentStep];
+
+            floatingInstructions.classList.add('fade-in');
+            floatingInstructions.classList.remove('fade-out');
+
+            setTimeout(() => {
+                floatingInstructions.classList.remove('fade-in');
+                floatingInstructions.classList.add('fade-out');
+            }, 1000);
+            currentStep++;
+        }
+        
+        // Capture image 
+        function captureImage() {
+            let name = document.getElementById('name').value;
+            if (!name) {
+                alert("Please enter your name.");
+                return;
+            }
+
+            let overlay = document.getElementById('face-overlay');
+            let video = document.getElementById('video');
+            let canvas = document.createElement('canvas');
+            let context = canvas.getContext('2d');
+
+            // Calculate the position and size of the overlay relative to the video
+            let rect = video.getBoundingClientRect();  // Get video position and size
+            let scaleX = video.videoWidth / rect.width;   // Scale between the bounding rect and the actual video size
+            let scaleY = video.videoHeight / rect.height;
+
+            let overlayRect = overlay.getBoundingClientRect(); // Get overlay position and size
+            let x = (overlayRect.left - rect.left) * scaleX;  // Adjust for the actual position on the video
+            let y = (overlayRect.top - rect.top) * scaleY;
+            let width = overlayRect.width * scaleX;
+            let height = overlayRect.height * scaleY;
+
+            // Set the canvas size to the size of the overlay
+            canvas.width = width;
+            canvas.height = height;
+
+            // Draw the video image, cropped to the overlay
+            context.drawImage(video, x, y, width, height, 0, 0, width, height);
+
+            // Convert canvas to blob (Binary Large Object) and send it
+            canvas.toBlob(blob => {
+                let formData = new FormData();
+                formData.append('name', name);
+                formData.append('image', blob, `image_${currentStep}.jpg`);
+
+                fetch('/save_image', { method: 'POST', body: formData })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (currentStep < captureSteps.length) {
+                            showNextInstruction();
+                        } else {
+                            document.getElementById('finished-text').textContent = `Finished Capturing Images of ${name}`;
+                            document.getElementById('finished-text').style.display = 'block';
+                            setTimeout(() => { window.location.href = '/'; }, 1000);
+                        }
+                    });
+            }, 'image/jpeg');
+        }
+
+
+        function createStar() {
+            const star = document.createElement('div');
+            star.classList.add('star');
+
+            const startX = Math.random() * window.innerWidth; 
+            const size = Math.random() *11 + 4; 
+            the_duration = Math.random() * 4 + 2; 
+            const drift = Math.random() * 60 - 30;
+
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.left = `${startX}px`;
+            star.style.animationDuration = `${the_duration}s, ${the_duration * 0.8}s`;
+            star.style.setProperty('--drift', `${drift}px`);
+
+            document.querySelector('.stars-container').appendChild(star);
+
+            setTimeout(() => {
+                star.remove();
+            }, the_duration * 1000);
+        }
+
+        setInterval(createStar, 100);
+    </script>
+
+</body>
+</html>

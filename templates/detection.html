@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Face Detection</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        /* Background & Gradient */
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #000000 100%);
+            color: #8878ad;
+            font-family: 'Arial', sans-serif;
+            position: relative;
+        }
+
+        /* Stars Background */
+        .stars-container {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(173,216,230,0) 80%);
+            border-radius: 50%;
+            opacity: 0;
+            animation: fall linear infinite, fade-in-out ease-in-out infinite;
+        }
+
+        @keyframes fall {
+            from {
+                transform: translateY(-10vh) translateX(0);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(110vh) translateX(var(--drift));
+                opacity: 1;
+            }
+        }
+
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        /* Loading Spinner */
+        .loader {
+            border: 6px solid rgba(255, 255, 255, 0.3);
+            border-top: 6px solid #8878ad;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loading-text {
+            margin-top: 15px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #8878ad;
+        }
+
+        /* Glassmorphism Effect for Video Section */
+        .content-box {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: solid #8878ad 3px;
+            padding: 25px 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+            margin: 20px auto;
+            text-align: center;
+            max-width: 500px;
+            animation: fade-in 1.5s ease-in-out;
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            font-size: 28px;
+            color: #8878ad;
+            text-shadow: 0px 0px 10px rgba(136, 120, 173, 0.8);
+        }
+
+        /* Video Feed */
+        #video-container {
+            display: none;
+            position: relative;
+            z-index: 10;
+        }
+
+        #video_feed {
+        max-width: 800px; /* ✅ Prevents video from becoming too large */
+        width: 80vw; /* ✅ Makes sure it scales responsively */
+        height: auto;
+        border: 5px solid #8878ad;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        }
+    
+
+        /* Button Styling */
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            color: black;
+            background: #8878ad;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: 0.3s ease;
+            margin: 15px auto;
+            display: block;
+            width: 250px;
+        }
+
+        button:hover {
+            background: #7324a1;
+            color: white;
+            box-shadow: 0px 0px 20px rgba(136, 120, 173, 0.8);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Stars Background -->
+    <div class="stars-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="loader"></div>
+        <p id="loading-text">Generating Embeddings...</p>
+    </div>
+
+    <!-- Real-Time Detection -->
+    <div id="video-container">
+        <div class="content-box">
+            <h2>Real-Time Face Detection</h2>
+        </div>
+        <img id="video_feed" src="/video_feed">
+        <br>
+        <button onclick="location.href='/'">Back to Homepage</button>
+    </div>
+
+    <script>
+        // ✅ Simulating Embeddings Loading (Replace with actual detection logic)
+        setTimeout(() => {
+            document.getElementById('loading-overlay').style.display = 'none';
+            document.getElementById('video-container').style.display = 'block';
+        }, 3000); // Simulated loading time
+
+        // ✅ Falling Stars Effect
+        function createStar() {
+            const star = document.createElement('div');
+            star.classList.add('star');
+
+            const startX = Math.random() * window.innerWidth; 
+            const size = Math.random() * 9 + 2; 
+            const duration = Math.random() * 4 + 2; 
+            const drift = Math.random() * 60 - 30;
+
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.left = `${startX}px`;
+            star.style.animationDuration = `${duration}s, ${duration * 0.8}s`;
+            star.style.setProperty('--drift', `${drift}px`);
+
+            document.querySelector('.stars-container').appendChild(star);
+
+            setTimeout(() => {
+                star.remove();
+            }, duration * 1000);
+        }
+
+        setInterval(createStar, 100);
+    </script>
+
+</body>
+</html>
