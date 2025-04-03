@@ -10,13 +10,14 @@ os.chdir("/home/harris/Documents/IE4428")
 print("Current Directory:", os.getcwd())
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 DATABASE_PATH = '/home/harris/Documents/IE4428/my_database'
-MODEL_NAME = 'ArcFace'
+# MODEL_NAME = 'ArcFace'
+MODEL_NAME = 'Facenet512'
 DETECTOR_BACKEND = 'opencv'
 embeddings, names = None, None
 trackers = {}  
 tracked_faces = {} 
 frame_count = 0 
-FRAME_INTERVAL = 40 
+FRAME_INTERVAL = 30 
 last_known_files = set()  # Track existing images in the database
 
 #https://github.com/serengil/deepface?tab=readme-ov-file 
@@ -36,17 +37,27 @@ def load_database_embeddings(db_path):
             continue
         for img_name in os.listdir(person_folder):
             img_path = os.path.join(person_folder, img_name)
+            img = cv2.imread(img_path)
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            normalized = gray / 255.0  # Normalize the grayscale image
+
+            # Temporarily save the processed image if DeepFace needs a file path
+            temp_path = "temp_normalized.jpg"
+            cv2.imwrite(temp_path, normalized * 255)  # Convert back to uint8 for saving
+
             embedding = DeepFace.represent(
-                img_path=img_path,
+                img_path=temp_path,
                 model_name=MODEL_NAME,
                 detector_backend=DETECTOR_BACKEND,
                 enforce_detection=False
             )
             if embedding:
-                if isinstance(embedding, list) and len(embedding) > 0 and "embedding" in embedding[0]:
-                    embeddings.append(embedding[0]["embedding"])
-
+                embeddings.append(embedding[0]['embedding'] if isinstance(embedding, list) else embedding)
                 names.append(person)
+
+            # Cleanup the temporary file
+            os.remove(temp_path)
+
     return np.array(embeddings), names
 
 def recognize_faces(frame):
@@ -55,9 +66,13 @@ def recognize_faces(frame):
     if frame_count % FRAME_INTERVAL != 0:
         return []  # Skip detection, rely on tracking
 
-    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    # Convert to grayscale and normalize
+    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    normalized_frame = gray_frame / 255.0  # Normalize pixel values to [0, 1]
+
+    # Save the normalized frame temporarily to pass to DeepFace
     temp_path = "temp_frame.jpg"
-    cv2.imwrite(temp_path, rgb_frame)
+    cv2.imwrite(temp_path, normalized_frame * 255)  # Scale back to [0, 255] for saving as JPEG
 
     detected_faces = DeepFace.extract_faces(
         img_path=temp_path,
@@ -69,14 +84,14 @@ def recognize_faces(frame):
     for face in detected_faces:
         facial_area = face.get("facial_area", {})
         if not all(k in facial_area for k in ["x", "y", "w", "h"]):
-            continue  # Skip incomplete detections
+            continue  
 
         (x, y, w, h) = facial_area["x"], facial_area["y"], facial_area["w"], facial_area["h"]
 
-        # Filter Out Abnormally Large Bounding Boxes, background noise
+        # Filter out abnormally large bounding boxes, which are likely not faces
         if w >= 0.8 * frame.shape[1] or h >= 0.8 * frame.shape[0]:
             print("[WARNING] Detected face is too large! Skipping...")
-            continue  
+            continue
 
         face_img = face["face"]
         face_img_uint8 = np.clip(face_img * 255, 0, 255).astype(np.uint8)
@@ -99,7 +114,7 @@ def recognize_faces(frame):
                 similarities = cosine_similarity([face_embedding], embeddings)[0]
                 best_match_idx = np.argmax(similarities) if len(similarities) > 0 else -1
                 best_score = similarities[best_match_idx] if best_match_idx != -1 else 0
-                if best_match_idx != -1 and best_score >= 0.6 and best_match_idx < len(names):
+                if best_match_idx != -1 and best_score >= 0.65 and best_match_idx < len(names):
                     name = names[best_match_idx]
 
         recognized_faces.append({"name": name, "bbox": (x, y, w, h)})
@@ -109,7 +124,6 @@ def recognize_faces(frame):
         os.remove("temp_face.jpg")
 
     return recognized_faces
-
 
 def generate_frames():
     global embeddings, names, frame_count, trackers, tracked_faces
