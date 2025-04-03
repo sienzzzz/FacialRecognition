@@ -3,7 +3,7 @@
 ## Features
 - Web interface with live camera preview  
 - Guided face image capturing with silhouette overlay  
-- Real-time face recognition using ArcFace & DeepFace  
+- Real-time face recognition using Facenet512 & opencv  
 - Automatic matching with custom face database  
 - Lightweight and easy to deploy
 
@@ -11,7 +11,7 @@
 
 - **Frontend**: HTML5 + CSS + Vanilla JS  
 - **Backend**: Flask (Python)  
-- **Face Recognition**: DeepFace (`ArcFace`, `opencv` backend)  
+- **Face Recognition**: DeepFace (`Facenet512`, `opencv` backend)  
 - **Video Processing**: OpenCV  
 - **ML**: Cosine similarity on embeddings
 
