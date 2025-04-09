@@ -41,7 +41,6 @@ def load_database_embeddings(db_path):
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             normalized = gray / 255.0  # Normalize the grayscale image
 
-            # Temporarily save the processed image if DeepFace needs a file path
             temp_path = "temp_normalized.jpg"
             cv2.imwrite(temp_path, normalized * 255)  # Convert back to uint8 for saving
 
