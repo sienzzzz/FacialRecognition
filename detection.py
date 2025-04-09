@@ -38,11 +38,10 @@ def load_database_embeddings(db_path):
         for img_name in os.listdir(person_folder):
             img_path = os.path.join(person_folder, img_name)
             img = cv2.imread(img_path)
-            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            normalized = gray / 255.0  # Normalize the grayscale image
+            # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
             temp_path = "temp_normalized.jpg"
-            cv2.imwrite(temp_path, normalized * 255)  # Convert back to uint8 for saving
+            cv2.imwrite(temp_path, img)  
 
             embedding = DeepFace.represent(
                 img_path=temp_path,
@@ -65,13 +64,8 @@ def recognize_faces(frame):
     if frame_count % FRAME_INTERVAL != 0:
         return []  # Skip detection, rely on tracking
 
-    # Convert to grayscale and normalize
-    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    normalized_frame = gray_frame / 255.0  # Normalize pixel values to [0, 1]
-
-    # Save the normalized frame temporarily to pass to DeepFace
     temp_path = "temp_frame.jpg"
-    cv2.imwrite(temp_path, normalized_frame * 255)  # Scale back to [0, 255] for saving as JPEG
+    cv2.imwrite(temp_path, frame)
 
     detected_faces = DeepFace.extract_faces(
         img_path=temp_path,
