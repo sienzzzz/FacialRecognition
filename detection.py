@@ -10,20 +10,18 @@ os.chdir("/home/harris/Documents/IE4428")
 print("Current Directory:", os.getcwd())
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 DATABASE_PATH = '/home/harris/Documents/IE4428/my_database'
-# MODEL_NAME = 'ArcFace'
 MODEL_NAME = 'Facenet512'
 DETECTOR_BACKEND = 'opencv'
 embeddings, names = None, None
 trackers = {}  
 tracked_faces = {} 
 frame_count = 0 
-FRAME_INTERVAL = 30 
-last_known_files = set()  # Track existing images in the database
+FRAME_INTERVAL = 30
 
-#https://github.com/serengil/deepface?tab=readme-ov-file 
-
+#https://github.com/serengil/deepface?tab=readme-ov-file
+#  
+# Reload embeddings every time detection starts
 def ensure_embeddings_loaded():
-    # Reload embeddings every time detection starts
     global embeddings, names
     print("Force reloading embeddings...")
     embeddings, names = load_database_embeddings(DATABASE_PATH)  
@@ -38,13 +36,9 @@ def load_database_embeddings(db_path):
         for img_name in os.listdir(person_folder):
             img_path = os.path.join(person_folder, img_name)
             img = cv2.imread(img_path)
-            # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-            temp_path = "temp_normalized.jpg"
-            cv2.imwrite(temp_path, img)  
 
             embedding = DeepFace.represent(
-                img_path=temp_path,
+                img_path=img,
                 model_name=MODEL_NAME,
                 detector_backend=DETECTOR_BACKEND,
                 enforce_detection=False
@@ -52,9 +46,6 @@ def load_database_embeddings(db_path):
             if embedding:
                 embeddings.append(embedding[0]['embedding'] if isinstance(embedding, list) else embedding)
                 names.append(person)
-
-            # Cleanup the temporary file
-            os.remove(temp_path)
 
     return np.array(embeddings), names
 
@@ -64,11 +55,8 @@ def recognize_faces(frame):
     if frame_count % FRAME_INTERVAL != 0:
         return []  # Skip detection, rely on tracking
 
-    temp_path = "temp_frame.jpg"
-    cv2.imwrite(temp_path, frame)
-
     detected_faces = DeepFace.extract_faces(
-        img_path=temp_path,
+        img_path=frame,
         detector_backend=DETECTOR_BACKEND,
         enforce_detection=False
     )
@@ -88,12 +76,10 @@ def recognize_faces(frame):
 
         face_img = face["face"]
         face_img_uint8 = np.clip(face_img * 255, 0, 255).astype(np.uint8)
-
-        temp_face_path = "temp_face.jpg"
-        cv2.imwrite(temp_face_path, cv2.cvtColor(face_img_uint8, cv2.COLOR_RGB2BGR))
+        face_bgr = cv2.cvtColor(face_img_uint8, cv2.COLOR_RGB2BGR)
 
         embedding_result = DeepFace.represent(
-            img_path=temp_face_path,
+            img_path=face_bgr,
             model_name=MODEL_NAME,
             detector_backend=DETECTOR_BACKEND,
             enforce_detection=False
@@ -111,10 +97,6 @@ def recognize_faces(frame):
                     name = names[best_match_idx]
 
         recognized_faces.append({"name": name, "bbox": (x, y, w, h)})
-
-    os.remove(temp_path)
-    if os.path.exists("temp_face.jpg"):
-        os.remove("temp_face.jpg")
 
     return recognized_faces
 
