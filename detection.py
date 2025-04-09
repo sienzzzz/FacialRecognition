@@ -113,7 +113,7 @@ def recognize_faces(frame):
                 similarities = cosine_similarity([face_embedding], embeddings)[0]
                 best_match_idx = np.argmax(similarities) if len(similarities) > 0 else -1
                 best_score = similarities[best_match_idx] if best_match_idx != -1 else 0
-                if best_match_idx != -1 and best_score >= 0.65 and best_match_idx < len(names):
+                if best_match_idx != -1 and best_score >= 0.70 and best_match_idx < len(names):
                     name = names[best_match_idx]
 
         recognized_faces.append({"name": name, "bbox": (x, y, w, h)})
